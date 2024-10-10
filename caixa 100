@@ -1,0 +1,125 @@
+import tkinter as tk
+from tkinter import messagebox, StringVar
+from datetime import datetime
+from collections import defaultdict
+
+class PostoPetroGasApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Posto PetroGas - Sistema")
+        self.root.geometry("400x400")
+        self.vendas = []  
+        self.login_screen()
+
+    def login_screen(self):
+        self.clear_screen()
+        
+        tk.Label(self.root, text="Tela de Login").pack(pady=10)
+        tk.Label(self.root, text="Usuário:").pack()
+        self.entry_usuario = tk.Entry(self.root)
+        self.entry_usuario.pack()
+
+        tk.Label(self.root, text="Senha:").pack()
+        self.entry_senha = tk.Entry(self.root, show="*")
+        self.entry_senha.pack()
+
+        button_login = tk.Button(self.root, text="Login", command=self.verificar_login)
+        button_login.pack(pady=20)
+
+    def verificar_login(self):
+        
+        self.vendas_screen()
+
+    def vendas_screen(self):
+        self.clear_screen()
+
+        self.produto_var = StringVar(self.root)
+        self.produto_var.set("Produtos")
+
+        self.pagamento_var = StringVar(self.root)
+        self.pagamento_var.set("Dinheiro")
+
+        tk.Label(self.root, text="Produto Vendido:").pack(pady=5)
+        opcoes_produtos = ["Sorvete", "Refrigerante", "Cerveja"]
+        menu_produto = tk.OptionMenu(self.root, self.produto_var, *opcoes_produtos)
+        menu_produto.pack(pady=5)
+
+        tk.Label(self.root, text="Quantidade:").pack(pady=5)
+        self.entry_quantidade = tk.Entry(self.root)
+        self.entry_quantidade.pack(pady=5)
+
+        tk.Label(self.root, text="Valor Unitário (R$):").pack(pady=5)
+        self.entry_valor = tk.Entry(self.root)
+        self.entry_valor.pack(pady=5)
+
+        tk.Label(self.root, text="Tipo de Pagamento:").pack(pady=5)
+        opcoes_pagamento = ["Dinheiro", "Cartão de Crédito", "Cartão de Débito"]
+        menu_pagamento = tk.OptionMenu(self.root, self.pagamento_var, *opcoes_pagamento)
+        menu_pagamento.pack(pady=5)
+
+        button_registrar = tk.Button(self.root, text="Registrar Venda", command=self.registrar_venda)
+        button_registrar.pack(pady=10)
+
+        button_relatorio = tk.Button(self.root, text="Gerar Relatório Mensal", command=self.gerar_relatorio)
+        button_relatorio.pack(pady=10)
+
+    def registrar_venda(self):
+        produto = self.produto_var.get()
+        try:
+            quantidade = int(self.entry_quantidade.get())
+            valor_unitario = float(self.entry_valor.get())
+            tipo_pagamento = self.pagamento_var.get()
+            
+            valor_total = self.calcular_valor_total(quantidade, valor_unitario)
+            
+            venda = {
+                'data': datetime.now(),
+                'produto': produto,
+                'quantidade': quantidade,
+                'valor_unitario': valor_unitario,
+                'valor_total': valor_total,
+                'tipo_pagamento': tipo_pagamento
+            }
+            self.vendas.append(venda)
+
+            resultado = (f"Venda registrada:\n"
+                         f"Data: {venda['data'].date()}\n"
+                         f"Hora: {venda['data'].time()}\n"
+                         f"Produto: {produto}\n"
+                         f"Quantidade: {quantidade}\n"
+                         f"Valor Unitário: R$ {valor_unitario:.2f}\n"
+                         f"Valor Total: R$ {valor_total:.2f}\n"
+                         f"Tipo de Pagamento: {tipo_pagamento}")
+
+            messagebox.showinfo("Registro de Venda", resultado)
+            
+            self.entry_quantidade.delete(0, tk.END)
+            self.entry_valor.delete(0, tk.END)
+            
+        except ValueError:
+            messagebox.showerror("Erro", "Por favor, insira valores válidos.")
+
+    def gerar_relatorio(self):
+        relatorio = defaultdict(float)
+        
+        for venda in self.vendas:
+            mes = venda['data'].strftime("%Y-%m")  
+            relatorio[mes] += venda['valor_total']
+        
+        relatorio_str = "Relatório Mensal de Vendas:\n"
+        for mes, total in relatorio.items():
+            relatorio_str += f"{mes}: R$ {total:.2f}\n"
+        
+        messagebox.showinfo("Relatório Mensal", relatorio_str)
+
+    def calcular_valor_total(self, quantidade, valor_unitario):
+        return quantidade * valor_unitario
+
+    def clear_screen(self):
+        for widget in self.root.winfo_children():
+            widget.destroy()
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = PostoPetroGasApp(root)
+    root.mainloop()
