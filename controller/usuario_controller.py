@@ -1,17 +1,13 @@
 import tkinter as tk
 from tkinter import messagebox
-
-
-from config.db_config import db_config
+#from config.db_config import db_config
 from model.usuario import PostoPetroGasModel
 from view.usuario_view import PostoPetroGasView
 
-
-
 class PostoPetroGasController:
     def __init__(self, root):
-        self.model = PostoPetroGasModel(self)
-        self.view = PostoPetroGasView(root, self)
+        self.model = PostoPetroGasModel(5, 10.3, "cartão", "gasolina")
+        self.view = PostoPetroGasView(root)
         self.view.login_screen()
 
     def verificar_senha_administrador(self, senha):

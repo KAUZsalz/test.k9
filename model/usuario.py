@@ -13,8 +13,6 @@ class PostoPetroGasModel:
         self.data = datetime.now()
         self.valor_total = self.calcular_valor_total()
 
-
-
     # Verifica se o login é válido
     def verify_login(self, cpf, password):
         stored_password = self.repository.get_user_by_cpf(cpf)

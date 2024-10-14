@@ -8,10 +8,8 @@ class PostoPetroGasApp:
         self.root = root
         self.root.title("Posto PetroGas - Sistema")
         self.root.geometry("400x400")
-        self.vendas = []  # Inicializando a lista de vendas
+        self.vendas = []  
         self.login_screen()
-
-    
 
     
     def vendas_screen(self):

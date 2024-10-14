@@ -2,9 +2,8 @@ import tkinter as tk
 from tkinter import messagebox, StringVar
 
 class PostoPetroGasView:
-    def __init__(self, root, controller):
+    def __init__(self, root):
         self.root = root
-        self.controller = controller
         self.root.title("Posto PetroGas - Sistema")
         self.root.geometry("400x400")
         self.cpf_entry = None
@@ -17,6 +16,13 @@ class PostoPetroGasView:
 
         self.create_login_screen()
 
+    def handle_login(self):
+            cpf = self.view.cpf_entry.get()
+            password = self.view.password_entry.get()
+            if self.model.verify_login(cpf, password):
+                self.view.role_selection_screen()
+            else:
+                self.view.show_message("Erro", "CPF ou senha incorretos!")
 
     def login_screen(self):
         self.clear_screen()
@@ -30,7 +36,7 @@ class PostoPetroGasView:
         self.password_entry = tk.Entry(self.root, show='*')
         self.password_entry.pack()
 
-        tk.Button(self.root, text="Login", command=self.controller.handle_login).pack(pady=10)
+        tk.Button(self.root, text="Login", command=self.handle_login).pack(pady=10)
 
     def role_selection_screen(self):
         self.clear_screen()
@@ -106,7 +112,7 @@ class PostoPetroGasView:
         self.entry_senha = tk.Entry(self.root, show="*")
         self.entry_senha.pack()
 
-        button_login = tk.Button(self.root, text="Login", command=self.controller.verificar_login)
+        button_login = tk.Button(self.root, text="Login", command=self.handle_login)
         button_login.pack(pady=20)
 
     def create_vendas_screen(self):
