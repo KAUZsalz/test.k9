@@ -6,8 +6,8 @@ class View:
     def __init__(self, controller):
         self.controller = controller
         self.root = tk.Tk()
-        self.root.title("Posto de Combustíveis")
-        self.root.geometry("400x200")
+        self.root.title("Posto Petrogras")
+        self.root.geometry("1000x5000")
 
     def iniciar_menu(self):
         tk.Label(self.root, text="CPF do Funcionário:").grid(row=0, column=0, padx=10, pady=10)
