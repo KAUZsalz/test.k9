@@ -1,153 +1,66 @@
 import tkinter as tk
-from tkinter import messagebox, StringVar
+from tkinter import ttk
+from tkinter import messagebox
 
-class PostoPetroGasView:
-    def __init__(self, root):
-        self.root = root
-        self.root.title("Posto PetroGas - Sistema")
-        self.root.geometry("400x400")
-        self.cpf_entry = None
-        self.password_entry = None
-        self.produto_var = StringVar(self.root)
-        self.produto_var.set("Produtos")
+class View:
+    def __init__(self, controller):
+        self.controller = controller
+        self.root = tk.Tk()
+        self.root.title("Posto de Combustíveis")
+        self.root.geometry("400x200")
 
-        self.pagamento_var = StringVar(self.root)
-        self.pagamento_var.set("Dinheiro")
-
-        self.create_login_screen()
-
-    def handle_login(self):
-            cpf = self.view.cpf_entry.get()
-            password = self.view.password_entry.get()
-            if self.model.verify_login(cpf, password):
-                self.view.role_selection_screen()
-            else:
-                self.view.show_message("Erro", "CPF ou senha incorretos!")
-
-    def login_screen(self):
-        self.clear_screen()
-        tk.Label(self.root, text="Posto PetroGas", font=("Arial", 24)).pack(pady=20)
-
-        tk.Label(self.root, text="Insira CPF:").pack()
+    def iniciar_menu(self):
+        tk.Label(self.root, text="CPF do Funcionário:").grid(row=0, column=0, padx=10, pady=10)
         self.cpf_entry = tk.Entry(self.root)
-        self.cpf_entry.pack()
+        self.cpf_entry.grid(row=0, column=1, padx=10)
 
-        tk.Label(self.root, text="Insira senha:").pack()
-        self.password_entry = tk.Entry(self.root, show='*')
-        self.password_entry.pack()
+        tk.Button(self.root, text="Login", command=self.controller.validar_login).grid(row=1, column=0, columnspan=2, pady=10)
+        tk.Label(self.root, text="Admin?").grid(row=2, column=0, padx=10, pady=10)
+        tk.Button(self.root, text="Entrar como Admin", command=self.controller.abrir_tela_senha).grid(row=2, column=1, padx=10, pady=10)
 
-        tk.Button(self.root, text="Login", command=self.handle_login).pack(pady=10)
+        self.root.mainloop()
 
-    def role_selection_screen(self):
-        self.clear_screen()
-        tk.Label(self.root, text="Posto PetroGas", font=("Arial", 24)).pack(pady=20)
+    def mostrar_tela_senha(self):
+        self.tela_senha = tk.Toplevel()
+        self.tela_senha.title("Login Administrador")
+        self.tela_senha.geometry("400x200")
 
-        tk.Button(self.root, text="Frentista", width=20, command=self.controller.show_fuel_options).pack(pady=10)
-        tk.Button(self.root, text="Caixa", width=20, command=self.controller.show_cashier_options).pack(pady=10)
+        tk.Label(self.tela_senha, text="Senha do Administrador:").grid(row=0, column=0, padx=10, pady=10)
+        self.senha_entry = tk.Entry(self.tela_senha, show="*")
+        self.senha_entry.grid(row=0, column=1, padx=10)
 
-    def fuel_options_screen(self):
-        self.clear_screen()
-        tk.Label(self.root, text="Posto PetroGas", font=("Arial", 24)).grid(row=0, column=0, columnspan=2, pady=20)
+        tk.Button(self.tela_senha, text="Entrar", command=self.controller.validar_senha_admin).grid(row=1, column=0, columnspan=2, pady=10)
 
-        tk.Button(self.root, text="Bomba de Gasolina", width=30, command=self.controller.fuel_pump).grid(row=1, column=0, padx=10, pady=10)
-        tk.Button(self.root, text="Troca de Óleo", width=30, command=self.controller.oil_change).grid(row=1, column=1, padx=10, pady=10)
+    def mostrar_menu_admin(self):
+        self.tela_senha.destroy()
+        tela_admin = tk.Toplevel()
+        tela_admin.title("Menu Administrador")
+        tela_admin.geometry("600x400")
 
-        tk.Button(self.root, text="Voltar", command=self.controller.show_role_selection).grid(row=2, column=0, columnspan=2, pady=20)
+        tk.Label(tela_admin, text="Menu Administrador", font=("Arial", 24)).grid(row=0, column=0, columnspan=2, pady=20)
 
-    def cashier_options_screen(self):
-        self.clear_screen()
-        tk.Label(self.root, text="Posto PetroGas", font=("Arial", 24)).pack(pady=20)
+        tk.Button(tela_admin, text="Cadastrar Funcionário", command=self.controller.abrir_cadastrar_funcionario, width=20).grid(row=1, column=0, padx=10, pady=10)
+        tk.Button(tela_admin, text="Listar Funcionários", command=self.controller.abrir_listar_funcionarios, width=20).grid(row=1, column=1, padx=10, pady=10)
+        tk.Button(tela_admin, text="Sair", command=tela_admin.destroy, width=20).grid(row=2, column=0, columnspan=2, pady=10)
 
-        tk.Button(self.root, text="Cadastrar Venda", width=30, command=self.controller.register_sale).pack(pady=10)
-        tk.Button(self.root, text="Gerar Relatório Mensal", width=30, command=self.controller.generate_report).pack(pady=10)
+    def mostrar_listagem(self, title, data, columns):
+        tela_listar = tk.Toplevel()
+        tela_listar.title(title)
+        tela_listar.geometry("600x400")
 
-        tk.Button(self.root, text="Voltar", command=self.controller.show_role_selection).pack(pady=20)
+        tree = ttk.Treeview(tela_listar, columns=columns, show="headings")
+        for col in columns:
+            tree.heading(col, text=col)
 
-    def clear_screen(self):
-        for widget in self.root.winfo_children():
-            widget.destroy()
+        for item in data:
+            tree.insert("", tk.END, values=item)
 
-    def show_message(self, title, message):
-        messagebox.showinfo(title, message)
+        tree.pack(pady=20)
+        tk.Button(tela_listar, text="Voltar", command=tela_listar.destroy, width=20).pack(pady=10)
+    
+    def mostrar_mensagem_erro(self, mensagem):
+        messagebox.showerror("Erro", mensagem)
+    
+    def mostrar_mensagem_sucesso(self, mensagem):
+        messagebox.showinfo("Sucesso", mensagem)
 
-    def create_widgets(self):
-        # Aqui, criamos as telas correspondentes, como a de cadastro de combustível e óleo
-        pass
-
-    def fuel_options_screen(self):
-        self.clear_screen()
-        tk.Label(self.root, text="Bomba de Gasolina", font=("Arial", 24)).pack(pady=20)
-
-        tk.Button(self.root, text="Cadastrar Combustível", width=30, command=self.controller.show_fuel_registration).pack(pady=10)
-        tk.Button(self.root, text="Ver Quantidade Disponível", width=30, command=self.controller.show_fuel_quantity).pack(pady=10)
-        tk.Button(self.root, text="Voltar", command=self.controller.show_role_selection).pack(pady=20)
-
-    def oil_options_screen(self):
-        self.clear_screen()
-        tk.Label(self.root, text="Troca de Óleo", font=("Arial", 24)).grid(row=0, column=0, columnspan=2, pady=20)
-
-
-        tk.Button(self.root, text="Cadastrar Óleo", width=30, command=self.controller.show_oil_registration).grid(row=1, column=0, padx=10, pady=10)
-        tk.Button(self.root, text="Ver Quantidade Disponível", width=30, command=self.controller.show_oil_quantity).grid(row=1, column=1, padx=10, pady=10)
-
-        tk.Button(self.root, text="Voltar", command=self.controller.show_role_selection).grid(row=2, column=0, columnspan=2, pady=20)
-
-    def clear_screen(self):
-        for widget in self.root.winfo_children():
-            widget.destroy()
-
-    def show_message(self, title, message):
-        messagebox.showinfo(title, message)
-
-
-    def create_login_screen(self):
-        self.clear_screen()
-
-        tk.Label(self.root, text="Tela de Login").pack(pady=10)
-        tk.Label(self.root, text="Usuário:").pack()
-        self.entry_usuario = tk.Entry(self.root)
-        self.entry_usuario.pack()
-
-        tk.Label(self.root, text="Senha:").pack()
-        self.entry_senha = tk.Entry(self.root, show="*")
-        self.entry_senha.pack()
-
-        button_login = tk.Button(self.root, text="Login", command=self.handle_login)
-        button_login.pack(pady=20)
-
-    def create_vendas_screen(self):
-        self.clear_screen()
-
-        tk.Label(self.root, text="Produto Vendido:").pack(pady=5)
-        opcoes_produtos = ["Sorvete", "Refrigerante", "Cerveja"]
-        menu_produto = tk.OptionMenu(self.root, self.produto_var, *opcoes_produtos)
-        menu_produto.pack(pady=5)
-
-        tk.Label(self.root, text="Quantidade:").pack(pady=5)
-        self.entry_quantidade = tk.Entry(self.root)
-        self.entry_quantidade.pack(pady=5)
-
-        tk.Label(self.root, text="Valor Unitário (R$):").pack(pady=5)
-        self.entry_valor = tk.Entry(self.root)
-        self.entry_valor.pack(pady=5)
-
-        tk.Label(self.root, text="Tipo de Pagamento:").pack(pady=5)
-        opcoes_pagamento = ["Dinheiro", "Cartão de Crédito", "Cartão de Débito"]
-        menu_pagamento = tk.OptionMenu(self.root, self.pagamento_var, *opcoes_pagamento)
-        menu_pagamento.pack(pady=5)
-
-        button_registrar = tk.Button(self.root, text="Registrar Venda", command=self.controller.registrar_venda)
-        button_registrar.pack(pady=10)
-
-        button_relatorio = tk.Button(self.root, text="Gerar Relatório Mensal", command=self.controller.gerar_relatorio)
-        button_relatorio.pack(pady=10)
-
-    def show_message(self, title, message):
-        messagebox.showinfo(title, message)
-
-    def show_error(self, title, message):
-        messagebox.showerror(title, message)
-
-    def clear_screen(self):
-        for widget in self.root.winfo_children():
-            widget.destroy()
